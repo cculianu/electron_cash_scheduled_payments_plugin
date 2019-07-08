@@ -19,14 +19,13 @@ class ValueFormatter(PrintError):
         if isinstance(self.wallet.contacts, dict):
             # old contacts API
             if address in self.wallet.contacts.keys():
-                contact_type, contact_name = self.wallet.contacts[address]
+                _ign, contact_name = self.wallet.contacts[address]
                 return contact_name +" <"+ address +">"
         else:
            # new contacts API
             try:
-                for contact in self.wallet.contacts.get_all():
-                    if address == contact.address:
-                        return contact.name + " <" + contact.address + ">"
+                for contact in self.wallet.contacts.find(address=address):
+                    return contact.name + " <" + contact.address + ">"
             except Exception as e:
                 self.print_error("WARNING: Could not detecmine contacts API, giving up:", repr(e))
 
@@ -50,4 +49,3 @@ class ValueFormatter(PrintError):
                 return "-"
             return datetime.datetime.fromtimestamp(value).strftime("%Y-%m-%d %H:%M")
         return str(value)
-

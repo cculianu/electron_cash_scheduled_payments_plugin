@@ -419,13 +419,13 @@ class Plugin(BasePlugin):
             if isinstance(contacts, dict):
                 # old contacts API
                 if address in contacts.keys():
-                    contact_type, contact_name = contacts[address]
+                    _ign, contact_name = contacts[address]
             else:
-                # new contacts API - find the contact, extract type & name
+                # new conftacts API - find the contact, extract type & name
                 try:
-                    for c in contacts.get_all():
-                        if c.address == address:
-                            contact_type, contact_name = c.type, c.name
+                    for c in contacts.find(address=address):
+                        contact_name = c.name
+                        break
                 except Exception as e:
                     self.print_error("Could not determine contacts API, giving up:", repr(e))
 

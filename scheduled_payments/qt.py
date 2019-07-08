@@ -415,8 +415,20 @@ class Plugin(BasePlugin):
             address = payment_data[PAYMENT_ADDRESS]
 
             contact_name = None
-            if address in wallet_window.contacts.keys():
-                contact_type, contact_name = wallet_window.contacts[address]
+            contacts = wallet_window.contacts
+            if isinstance(contacts, dict):
+                # old contacts API
+                if address in contacts.keys():
+                    contact_type, contact_name = contacts[address]
+            else:
+                # new contacts API - find the contact, extract type & name
+                try:
+                    for c in contacts.get_all():
+                        if c.address == address:
+                            contact_type, contact_name = c.type, c.name
+                except Exception as e:
+                    self.print_error("Could not determine contacts API, giving up:", repr(e))
+
             if contact_name is not None:
                 addresses.append(contact_name +' <'+ address +'>')
             else:

@@ -8,16 +8,27 @@ DISPLAY_AS_AMOUNT_NO_UNITS = 4
 
 
 from electroncash.address import Address
+from electroncash.util import PrintError
 
-class ValueFormatter:
+class ValueFormatter(PrintError):
     def __init__(self, window):
         self.window = window
         self.wallet = window.wallet
-        
+
     def format_contact(self, address):
-        if address in self.wallet.contacts.keys():
-            contact_type, contact_name = self.wallet.contacts[address]
-            return contact_name +" <"+ address +">"        
+        if isinstance(self.wallet.contacts, dict):
+            # old contacts API
+            if address in self.wallet.contacts.keys():
+                contact_type, contact_name = self.wallet.contacts[address]
+                return contact_name +" <"+ address +">"
+        else:
+           # new contacts API
+            try:
+                for contact in self.wallet.contacts.get_all():
+                    if address == contact.address:
+                        return contact.name + " <" + contact.address + ">"
+            except Exception as e:
+                self.print_error("WARNING: Could not detecmine contacts API, giving up:", repr(e))
 
     def format_value(self, value, display_type=0):
         if display_type in (DISPLAY_AS_AMOUNT, DISPLAY_AS_AMOUNT_NO_UNITS):

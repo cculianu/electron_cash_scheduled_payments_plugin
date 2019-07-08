@@ -14,6 +14,7 @@ from decimal import Decimal
 from electroncash import bitcoin
 from electroncash.address import Address, ScriptOutput
 from electroncash.networks import NetworkConstants
+from electroncash.util import print_error
 
 from electroncash_gui.qt import util
 
@@ -264,8 +265,15 @@ class PayToEdit(ScanQRTextEdit):
         self.setText(new_url)
         self.previous_payto = new_url
 
-        #if self.win.config.get('openalias_autoadd') == 'checked':
-        self.win.contacts[key] = ('openalias', name)
+        if isinstance(self.win.contacts, dict):
+            # old contacts API
+            self.win.contacts[key] = ('openalias', name)
+        else:
+            try:
+                from electroncash.contacts import Contact
+                self.win.contacts.add(Contact(name=name, address=key, type='openalias'), unique=True)
+            except Exception as e:
+                print_error("[Custom PayToEdit] Could not determine contacts API, giving up:",repr(e))
         self.win.contact_list.on_update()
 
         self.setFrozen(True)

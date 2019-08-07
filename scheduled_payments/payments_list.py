@@ -12,6 +12,8 @@ from .util import *
 
 
 class ScheduledPaymentsList(MyTreeWidget, MessageBoxMixin):
+    filter_columns = [0, 1, 2]  # EC versions before 4.0.9 didn't define this and Ctrl+F would lead to an exception
+
     def __init__(self, parent, plugin, wallet_name):
         MyTreeWidget.__init__(self, parent, self.create_menu, [
             _('Description'),
